@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+venv1/
+.venv/
+ENV/
+
+# Credentials - NEVER commit these
+credentials.txt
+*.env
+.env
+
+# Output and cache directories
+output/
+.embed_cache/
+.tabular_cache/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test files
+test_*.py
+!test/
+
+# Docker
+.docker/

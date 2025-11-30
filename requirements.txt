@@ -1,0 +1,24 @@
+# AutoGen Framework
+pyautogen>=0.2.0
+autogen-agentchat[jupyter-executor]>=0.2.0
+
+# Database Connectors (base - LLM can install additional packages dynamically)
+sqlalchemy>=2.0.0
+snowflake-connector-python>=3.0.0
+
+# Azure OpenAI (for API calls)
+requests>=2.31.0
+
+# Utilities
+python-dotenv>=1.0.0
+
+# API Server
+fastapi>=0.104.0
+uvicorn>=0.24.0
+pydantic>=2.0.0
+
+# Jupyter dependencies (included with jupyter-executor but listed for clarity)
+jupyter-kernel-gateway>=2.5.0
+ipykernel>=6.25.0
+jupyter-client>=8.0.0
+

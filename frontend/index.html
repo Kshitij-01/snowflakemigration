@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Snowflake Migration Pipeline</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">*</span>
+                <span class="logo-text">SNOWFLAKE MIGRATION</span>
+            </div>
+            <nav class="nav">
+                <a href="#" class="nav-link active">Pipeline</a>
+                <a href="#" class="nav-link">History</a>
+                <a href="#" class="nav-link">Settings</a>
+            </nav>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main">
+            <!-- Hero Section -->
+            <section class="hero">
+                <h1 class="hero-title">
+                    Agentic AI<br>
+                    <span class="highlight">Database Migration</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Automated PostgreSQL to Snowflake migration powered by GPT-5.1 agents
+                </p>
+            </section>
+
+            <!-- Run ID Input -->
+            <div class="run-id-section">
+                <label class="input-label">Migration Run ID</label>
+                <input type="text" id="runId" class="input-field run-id-input" placeholder="e.g., ecommerce-migration-v1" value="">
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-section" id="progressSection" style="display: none;">
+                <div class="progress-header">
+                    <span class="progress-label" id="progressLabel">Starting...</span>
+                    <span class="progress-percent" id="progressPercent">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+                <div class="progress-phases">
+                    <div class="progress-phase" id="progressPhase1">
+                        <span class="phase-dot"></span>
+                        <span>Schema Analysis</span>
+                    </div>
+                    <div class="progress-phase" id="progressPhase2">
+                        <span class="phase-dot"></span>
+                        <span>Migration Planning</span>
+                    </div>
+                    <div class="progress-phase" id="progressPhase3">
+                        <span class="phase-dot"></span>
+                        <span>Execution</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase Cards Container -->
+            <div class="phases-container">
+                
+                <!-- Phase 1: Schema Analysis -->
+                <div class="phase-card phase-1">
+                    <div class="phase-header">
+                        <div class="phase-number">01</div>
+                        <div class="phase-info">
+                            <h2 class="phase-title">Schema Analysis</h2>
+                            <p class="phase-desc">Analyze source database schema structure</p>
+                        </div>
+                        <div class="phase-status" id="phase1Status">Ready</div>
+                    </div>
+
+                    <div class="phase-content">
+                        <!-- Instructions -->
+                        <div class="form-section">
+                            <h3 class="section-title">Instructions & Connection Details</h3>
+                            <textarea id="phase1Instructions" class="textarea-field" rows="8" placeholder="Provide connection details and analysis instructions...
+
+Example:
+Host: mydb.postgres.database.azure.com
+Database: postgres
+Schema: ecommerce
+Username: admin
+Password: mypassword
+
+Analyze all tables and include 2 sample rows per column."></textarea>
+                        </div>
+
+                        <!-- Phase 1 Output -->
+                        <div class="output-section" id="phase1Output" style="display: none;">
+                            <h3 class="section-title">Analysis Results</h3>
+                            <div class="output-content" id="phase1Results"></div>
+                        </div>
+
+                        <!-- Schema Diagram -->
+                        <div class="output-section" id="diagramSection" style="display: none;">
+                            <h3 class="section-title">Schema Diagram</h3>
+                            <div class="diagram-container" id="diagramContainer">
+                                <div class="diagram-loading" id="diagramLoading">
+                                    <span class="spinner"></span> Generating diagram...
+                                </div>
+                                <div class="mermaid-diagram" id="mermaidDiagram"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 2: Migration Planning -->
+                <div class="phase-card phase-2">
+                    <div class="phase-header">
+                        <div class="phase-number">02</div>
+                        <div class="phase-info">
+                            <h2 class="phase-title">Migration Planning</h2>
+                            <p class="phase-desc">AI agents debate and create optimal migration strategy</p>
+                        </div>
+                        <div class="phase-status" id="phase2Status">Waiting</div>
+                    </div>
+
+                    <div class="phase-content">
+                        <div class="form-section">
+                            <h3 class="section-title">Instructions for Planner Agents</h3>
+                            <textarea id="phase2Instructions" class="textarea-field" rows="5" placeholder="Guide the migration planning debate...
+
+Example:
+- Prioritize zero-downtime migration
+- Include rollback strategy for each step
+- Consider data validation checkpoints
+- Handle foreign key dependencies carefully"></textarea>
+                        </div>
+
+                        <!-- Planner Config -->
+                        <div class="form-section">
+                            <h3 class="section-title">Planner Configuration</h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="input-label">Planner Alpha Model</label>
+                                    <select id="alphaModel" class="input-field">
+                                        <option value="enmapper-gpt-5.1-codex" selected>GPT-5.1 Codex</option>
+                                        <option value="enmapper-gpt-5.1">GPT-5.1</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="input-label">Planner Beta Model</label>
+                                    <select id="betaModel" class="input-field">
+                                        <option value="enmapper-gpt-5.1" selected>GPT-5.1</option>
+                                        <option value="enmapper-gpt-5.1-codex">GPT-5.1 Codex</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="input-label">Debate Rounds</label>
+                                    <select id="debateRounds" class="input-field">
+                                        <option value="1">1 Round</option>
+                                        <option value="2" selected>2 Rounds</option>
+                                        <option value="3">3 Rounds</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Phase 2 Output -->
+                        <div class="output-section" id="phase2Output" style="display: none;">
+                            <h3 class="section-title">Migration Plan</h3>
+                            <div class="output-content" id="phase2Results"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 3: Migration Execution -->
+                <div class="phase-card phase-3">
+                    <div class="phase-header">
+                        <div class="phase-number">03</div>
+                        <div class="phase-info">
+                            <h2 class="phase-title">Migration Execution</h2>
+                            <p class="phase-desc">Execute migration with Boss and Worker agents</p>
+                        </div>
+                        <div class="phase-status" id="phase3Status">Waiting</div>
+                    </div>
+
+                    <div class="phase-content">
+                        <!-- Worker Configuration -->
+                        <div class="form-section">
+                            <h3 class="section-title">Worker Agent Configuration</h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="input-label">Worker Model</label>
+                                    <select id="workerModel" class="input-field">
+                                        <option value="enmapper-gpt-5.1-codex" selected>GPT-5.1 Codex</option>
+                                        <option value="enmapper-gpt-5.1">GPT-5.1</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="input-label">Reasoning Effort</label>
+                                    <select id="workerEffort" class="input-field">
+                                        <option value="low">Low</option>
+                                        <option value="medium" selected>Medium</option>
+                                        <option value="high">High</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3 class="section-title">Instructions for Worker Agent</h3>
+                            <textarea id="phase3Instructions" class="textarea-field" rows="5" placeholder="Guide the migration execution...
+
+Example:
+- Target Snowflake schema: ECOMMERCE
+- Batch size: 1000 rows per insert
+- Validate row counts after each table
+- Log progress for each operation"></textarea>
+                        </div>
+
+                        <!-- Phase 3 Output -->
+                        <div class="output-section" id="phase3Output" style="display: none;">
+                            <h3 class="section-title">Execution Results</h3>
+                            <div class="output-content" id="phase3Results"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="actions">
+                <button class="btn btn-primary" id="startBtn">
+                    <span class="btn-icon">-></span>
+                    Start Migration
+                </button>
+            </div>
+
+            <!-- Live Log Section -->
+            <div class="log-section" id="logSection" style="display: none;">
+                <div class="log-header">
+                    <h3 class="section-title">Live Execution Log</h3>
+                    <button class="btn-icon-only" id="clearLogBtn">Clear</button>
+                </div>
+                <div class="log-content" id="logContent"></div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Powered by AutoGen + GPT-5.1 Codex</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
+
