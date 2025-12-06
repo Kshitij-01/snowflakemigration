@@ -42,25 +42,40 @@ Phase 3: Worker Agent
 
 ### Installation
 
-```bash
-git clone https://github.com/Kshitij-01/snowflakemigration.git
-cd snowflakemigration
-pip install -r requirements.txt
-```
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Kshitij-01/snowflakemigration.git
+   cd snowflakemigration
+   ```
+
+2. Install Python dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+   
+   Or use a virtual environment (recommended):
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
 
 ### Configuration
 
-Create a `credentials.txt` file:
+1. Copy the example credentials file:
+   ```bash
+   cp credentials.example.txt credentials.txt
+   ```
 
-```
-AZURE_OPENAI_API_KEY=your-api-key
-AZURE_OPENAI_ENDPOINT=https://your-endpoint.openai.azure.com/
-SNOWFLAKE_ACCOUNT=your-account
-SNOWFLAKE_USER=your-user
-SNOWFLAKE_PASSWORD=your-password
-SNOWFLAKE_WAREHOUSE=COMPUTE_WH
-SNOWFLAKE_DATABASE=MIGRATION_DB
-```
+2. Edit `credentials.txt` and replace all placeholder values with your actual credentials:
+   - **Required**: Azure OpenAI credentials (API key, endpoint)
+   - **Required**: Snowflake credentials (account, user, password, warehouse, database)
+   - **Optional**: Source database credentials (PostgreSQL, Teradata, etc.) - can also be provided in Phase 1 instructions
+   - **Optional**: AWS, Azure Key Vault, and other service credentials
+
+   See `credentials.example.txt` for the complete structure with detailed comments.
+
+   **Important**: The `credentials.txt` file is in `.gitignore` and will NOT be committed to version control. Always use `credentials.example.txt` as a template.
 
 ### Run the Web UI
 

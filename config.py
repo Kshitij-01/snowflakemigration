@@ -5,10 +5,15 @@ Loads credentials and sets up Azure OpenAI endpoints
 
 import os
 import re
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
-def load_credentials() -> Dict[str, str]:
-    """Load credentials from environment variables or credentials.txt file."""
+def load_credentials(run_folder: Optional[str] = None) -> Dict[str, str]:
+    """Load credentials from environment variables or credentials.txt file.
+    
+    Args:
+        run_folder: Optional path to migration run folder. If provided, checks for
+                   credentials.txt in that folder first before falling back to default.
+    """
     creds = {}
     
     # First, check environment variables (for production/Docker)
@@ -27,7 +32,20 @@ def load_credentials() -> Dict[str, str]:
     if creds.get('AZURE_OPENAI_API_KEY') and creds.get('SNOWFLAKE_ACCOUNT'):
         return creds
     
-    # Fall back to credentials.txt file (for local development)
+    # Check for credentials.txt in run folder first (if provided)
+    if run_folder:
+        run_cred_file = os.path.join(run_folder, 'credentials.txt')
+        if os.path.exists(run_cred_file):
+            with open(run_cred_file, 'r') as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('#') and '=' in line:
+                        key, value = line.split('=', 1)
+                        # Don't override env vars
+                        if key.strip() not in creds:
+                            creds[key.strip()] = value.strip()
+    
+    # Fall back to default credentials.txt file (for local development)
     cred_file = os.path.join(os.path.dirname(__file__), 'credentials.txt')
     
     if os.path.exists(cred_file):
@@ -36,7 +54,7 @@ def load_credentials() -> Dict[str, str]:
                 line = line.strip()
                 if line and not line.startswith('#') and '=' in line:
                     key, value = line.split('=', 1)
-                    # Don't override env vars
+                    # Don't override env vars or run folder creds
                     if key.strip() not in creds:
                         creds[key.strip()] = value.strip()
     
@@ -48,6 +66,7 @@ def load_credentials() -> Dict[str, str]:
 def get_azure_openai_config(
     reasoning_effort: str = "medium",
     deployment: str | None = None,
+    run_folder: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Get Azure OpenAI configuration.
@@ -55,8 +74,9 @@ def get_azure_openai_config(
     Args:
         reasoning_effort: Reasoning effort level for GPT-5.1-codex ('low', 'medium', 'high').
         deployment: Specific deployment name (defaults to GPT-5.1-codex).
+        run_folder: Optional path to migration run folder for loading credentials from uploaded file.
     """
-    creds = load_credentials()
+    creds = load_credentials(run_folder=run_folder)
     endpoint = creds.get("AZURE_OPENAI_ENDPOINT")
     api_key = creds.get("AZURE_OPENAI_API_KEY")
     api_version = creds.get("AZURE_OPENAI_API_VERSION", "2024-12-01-preview")

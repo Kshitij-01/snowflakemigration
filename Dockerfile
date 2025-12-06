@@ -17,18 +17,21 @@ COPY requirements.txt .
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
+# Copy application code (excluding files in .dockerignore)
 COPY . .
 
-# Create output directory
-RUN mkdir -p /app/output
+# Create output directory with proper permissions
+RUN mkdir -p /app/output && chmod 755 /app/output
 
 # Expose port
 EXPOSE 8000
 
+# Set environment variable for Python
+ENV PYTHONUNBUFFERED=1
+
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/ || exit 1
+    CMD curl -f http://localhost:8000/api/health || exit 1
 
 # Run the application
 CMD ["python", "api_server.py"]

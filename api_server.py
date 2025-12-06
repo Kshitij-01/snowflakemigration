@@ -16,7 +16,7 @@ import threading
 import uuid
 from typing import Any, Dict, Optional
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, BackgroundTasks, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -101,7 +101,8 @@ def start_migration(request: MigrationRequest, background_tasks: BackgroundTasks
         "logs": [],
     }
     
-    # Run migration in background
+    # Run migration in background (credentials file can be uploaded after this,
+    # but before Phase 3 which actually uses them)
     background_tasks.add_task(run_migration_pipeline, migration_id, request, run_folder)
     
     return {
@@ -142,6 +143,44 @@ def list_migrations():
     ]
 
 
+@app.post("/api/migration/{migration_id}/credentials")
+async def upload_credentials_file(migration_id: str, file: UploadFile = File(...)):
+    """Upload a custom credentials.txt file for the migration."""
+    if migration_id not in migrations:
+        raise HTTPException(status_code=404, detail="Migration not found")
+    
+    # Validate file type
+    if not file.filename.endswith('.txt'):
+        raise HTTPException(status_code=400, detail="File must be a .txt file")
+    
+    # Get run folder
+    run_folder = migrations[migration_id].get("run_folder")
+    if not run_folder:
+        raise HTTPException(status_code=400, detail="Migration run folder not found")
+    
+    # Save credentials file to run folder
+    credentials_path = os.path.join(run_folder, "credentials.txt")
+    
+    try:
+        # Read file content
+        content = await file.read()
+        
+        # Write to run folder
+        with open(credentials_path, 'wb') as f:
+            f.write(content)
+        
+        add_log(migration_id, f"Credentials file uploaded: {file.filename}", "info")
+        
+        return {
+            "success": True,
+            "filename": file.filename,
+            "path": credentials_path,
+            "message": "Credentials file uploaded successfully"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save credentials file: {str(e)}")
+
+
 @app.get("/api/migration/{migration_id}/diagram")
 def generate_diagram(migration_id: str, background_tasks: BackgroundTasks):
     """Generate Mermaid ER diagram from the schema catalog."""
@@ -180,7 +219,7 @@ def generate_diagram(migration_id: str, background_tasks: BackgroundTasks):
     try:
         from agents.diagram_generator import DiagramGeneratorAgent
         
-        azure_config = get_azure_openai_config()
+        azure_config = get_azure_openai_config(run_folder=run_folder)
         
         diagram_agent = DiagramGeneratorAgent(
             llm_config={
@@ -290,8 +329,8 @@ def run_migration_pipeline(migration_id: str, request: MigrationRequest, run_fol
         # Parse target schema from Phase 3 instructions
         target_schema = parse_instructions_for_target(request.phase3_instructions, source_schema)
         
-        # Load Snowflake credentials
-        creds = load_credentials()
+        # Load Snowflake credentials (check run folder first for uploaded credentials)
+        creds = load_credentials(run_folder=run_folder)
         target_db = {
             "account": creds.get("SNOWFLAKE_ACCOUNT", ""),
             "user": creds.get("SNOWFLAKE_USER", ""),
@@ -368,7 +407,7 @@ def run_phase1(migration_id: str, run_folder: str, instructions: str) -> dict:
     """
     from agents.schema_analyzer import SchemaAnalyzerAgent
     
-    azure_config = get_azure_openai_config(reasoning_effort="low")
+    azure_config = get_azure_openai_config(reasoning_effort="low", run_folder=run_folder)
     
     # Create agent with instructions - it will extract connection details
     agent = SchemaAnalyzerAgent(
@@ -410,7 +449,7 @@ def run_phase2(migration_id: str, run_folder: str, catalog: dict, source_schema:
     """Run Phase 2: Migration Planning."""
     from agents.planner import PlannerAgent, DebateRunner
     
-    azure_config = get_azure_openai_config()
+    azure_config = get_azure_openai_config(run_folder=run_folder)
     
     # Build client configs for planners
     alpha_client_config = {
@@ -476,7 +515,7 @@ def run_phase3(migration_id: str, run_folder: str, catalog: dict,
     """Run Phase 3: Migration Execution."""
     from agents.executor import MigrationExecutor
     
-    azure_config = get_azure_openai_config()
+    azure_config = get_azure_openai_config(run_folder=run_folder)
     
     worker_llm_config = {
         "deployment": worker_config.model,

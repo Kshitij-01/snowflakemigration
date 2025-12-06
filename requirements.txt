@@ -1,23 +1,49 @@
-# AutoGen Framework
+# ============================================
+# Core Framework
+# ============================================
+# AutoGen Framework for agent orchestration
 pyautogen>=0.2.0
 autogen-agentchat[jupyter-executor]>=0.2.0
 
-# Database Connectors (base - LLM can install additional packages dynamically)
+# ============================================
+# Database Connectors
+# ============================================
+# Base database connectors (LLM agents can install additional packages dynamically)
 sqlalchemy>=2.0.0
 snowflake-connector-python>=3.0.0
+psycopg2-binary>=2.9.0
 
-# Azure OpenAI (for API calls)
-requests>=2.31.0
+# Optional database drivers (installed dynamically by agents as needed):
+# - teradatasql (for Teradata/ClearScape)
+# - pymysql (for MySQL)
+# - pymongo (for MongoDB)
+# - pyodbc (for SQL Server)
+# - cx_Oracle or oracledb (for Oracle)
+# - ibm_db (for IBM DB2)
 
-# Utilities
+# ============================================
+# Data Generation & Utilities
+# ============================================
+faker>=20.0.0
 python-dotenv>=1.0.0
 
-# API Server
+# ============================================
+# API & HTTP
+# ============================================
+requests>=2.31.0
+
+# ============================================
+# Web API Server
+# ============================================
 fastapi>=0.104.0
 uvicorn>=0.24.0
 pydantic>=2.0.0
+python-multipart>=0.0.6  # Required for file uploads
 
-# Jupyter dependencies (included with jupyter-executor but listed for clarity)
+# ============================================
+# Jupyter Kernel (for code execution)
+# ============================================
+# Note: jupyter-executor extra includes these, but listed for clarity
 jupyter-kernel-gateway>=2.5.0
 ipykernel>=6.25.0
 jupyter-client>=8.0.0

@@ -232,6 +232,56 @@ Example:
                 </div>
             </div>
 
+            <!-- Configuration Section -->
+            <div class="config-section">
+                <h3 class="section-title">Advanced Configuration</h3>
+                <div class="form-section">
+                    <label class="input-label">Credentials File (Optional)</label>
+                    <div class="file-upload-container">
+                        <input type="file" id="credentialsFile" accept=".txt" style="display: none;">
+                        <button type="button" class="btn btn-secondary" id="uploadCredentialsBtn">
+                            <span class="btn-icon">🔑</span>
+                            Upload credentials.txt
+                        </button>
+                        <span id="credentialsFileName" class="file-name-display" style="display: none;"></span>
+                        <button type="button" class="btn-icon-only" id="clearCredentialsBtn" style="display: none;" title="Clear uploaded file">✕</button>
+                        <button type="button" class="btn btn-secondary" id="showCredentialsExampleBtn" style="margin-left: 8px;">
+                            <span class="btn-icon">📋</span>
+                            View Example Format
+                        </button>
+                    </div>
+                    <p class="help-text">Upload your credentials.txt file with Snowflake, PostgreSQL, and Azure OpenAI credentials. Leave empty to use default credentials.txt from server.</p>
+                    <div id="credentialsExample" class="credentials-example" style="display: none;">
+                        <h4 style="margin-top: 16px; margin-bottom: 8px;">Example credentials.txt format:</h4>
+                        <pre class="credentials-example-code"># SNOWFLAKE CREDENTIALS (REQUIRED)
+SNOWFLAKE_ACCOUNT=your-account-identifier.region.cloud-provider
+SNOWFLAKE_USER=your-username
+SNOWFLAKE_PASSWORD=your-password
+SNOWFLAKE_WAREHOUSE=COMPUTE_WH
+SNOWFLAKE_DATABASE=MIGRATION_DB
+SNOWFLAKE_SCHEMA=PUBLIC
+
+# AZURE OPENAI CREDENTIALS (REQUIRED)
+AZURE_OPENAI_ENDPOINT=https://your-resource-name.openai.azure.com/
+AZURE_OPENAI_API_KEY=your-azure-openai-api-key
+AZURE_OPENAI_API_VERSION=2024-12-01-preview
+
+# POSTGRESQL CREDENTIALS (OPTIONAL - can also be in Phase 1 instructions)
+POSTGRES_HOST=your-postgres-host.database.azure.com
+POSTGRES_USER=your-postgres-username
+POSTGRES_PASSWORD=your-postgres-password
+POSTGRES_DB=your-database-name
+POSTGRES_PORT=5432
+
+# TERADATA CREDENTIALS (OPTIONAL)
+TERADATA_HOST=your-host.env.clearscape.teradata.com
+TERADATA_USER=your-teradata-username
+TERADATA_PASSWORD=your-teradata-password</pre>
+                        <p class="help-text" style="margin-top: 8px; font-size: 0.8rem;">Copy this format to create your credentials.txt file. Replace all placeholder values with your actual credentials.</p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Action Buttons -->
             <div class="actions">
                 <button class="btn btn-primary" id="startBtn">

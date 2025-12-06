@@ -62,6 +62,13 @@ const elements = {
     logSection: document.getElementById('logSection'),
     logContent: document.getElementById('logContent'),
     clearLogBtn: document.getElementById('clearLogBtn'),
+    // Credentials file upload
+    credentialsFile: document.getElementById('credentialsFile'),
+    uploadCredentialsBtn: document.getElementById('uploadCredentialsBtn'),
+    credentialsFileName: document.getElementById('credentialsFileName'),
+    clearCredentialsBtn: document.getElementById('clearCredentialsBtn'),
+    showCredentialsExampleBtn: document.getElementById('showCredentialsExampleBtn'),
+    credentialsExample: document.getElementById('credentialsExample'),
     // Progress bar
     progressSection: document.getElementById('progressSection'),
     progressLabel: document.getElementById('progressLabel'),
@@ -72,6 +79,9 @@ const elements = {
     progressPhase3: document.getElementById('progressPhase3'),
 };
 
+// State for uploaded files
+let uploadedCredentialsFile = null;
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     // Generate default run ID
@@ -81,6 +91,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listeners
     elements.startBtn.addEventListener('click', startMigration);
     elements.clearLogBtn.addEventListener('click', clearLog);
+    
+    // Credentials file upload
+    elements.uploadCredentialsBtn.addEventListener('click', () => {
+        elements.credentialsFile.click();
+    });
+    elements.credentialsFile.addEventListener('change', handleCredentialsFileUpload);
+    elements.clearCredentialsBtn.addEventListener('click', clearCredentialsFile);
+    elements.showCredentialsExampleBtn.addEventListener('click', toggleCredentialsExample);
 });
 
 // Logging
@@ -178,6 +196,43 @@ async function apiCall(endpoint, method = 'GET', data = null) {
     return response.json();
 }
 
+// Handle credentials file upload
+async function handleCredentialsFileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    if (file.name !== 'credentials.txt' && !file.name.endsWith('.txt')) {
+        alert('Please upload a .txt file (preferably named credentials.txt)');
+        elements.credentialsFile.value = '';
+        return;
+    }
+    
+    uploadedCredentialsFile = file;
+    elements.credentialsFileName.textContent = file.name;
+    elements.credentialsFileName.style.display = 'inline';
+    elements.clearCredentialsBtn.style.display = 'inline-block';
+    
+    log(`Credentials file selected: ${file.name}`, 'info');
+}
+
+// Clear credentials file
+function clearCredentialsFile() {
+    uploadedCredentialsFile = null;
+    elements.credentialsFile.value = '';
+    elements.credentialsFileName.style.display = 'none';
+    elements.clearCredentialsBtn.style.display = 'none';
+    log('Credentials file cleared', 'info');
+}
+
+// Toggle credentials example display
+function toggleCredentialsExample() {
+    const isVisible = elements.credentialsExample.style.display !== 'none';
+    elements.credentialsExample.style.display = isVisible ? 'none' : 'block';
+    elements.showCredentialsExampleBtn.innerHTML = isVisible 
+        ? '<span class="btn-icon">📋</span> View Example Format'
+        : '<span class="btn-icon">👁️</span> Hide Example';
+}
+
 // Get migration config from instructions
 function getMigrationConfig() {
     return {
@@ -253,11 +308,28 @@ async function startMigration() {
     log(`Run ID: ${config.run_id}`, 'info');
     
     try {
+        // Upload credentials file BEFORE starting migration (if provided)
+        // We need to create a temporary migration ID for this
+        if (uploadedCredentialsFile) {
+            log('Preparing credentials file...', 'info');
+            // We'll upload it after migration starts, but we need to do it immediately
+        }
+        
         // Start the migration
         const startResult = await apiCall('/api/migration/start', 'POST', config);
         runFolder = startResult.run_folder;
         
         log(`Run folder created: ${runFolder}`, 'info');
+        
+        // Upload credentials file immediately after migration starts (if provided)
+        // This must happen before Phase 1 runs
+        if (uploadedCredentialsFile) {
+            log('Uploading credentials file...', 'info');
+            await uploadCredentialsFile(startResult.migration_id);
+            log('Credentials file uploaded, waiting for Phase 1 to start...', 'info');
+            // Give a small delay to ensure file is written
+            await sleep(500);
+        }
         
         // Poll for status updates
         await pollMigrationStatus(startResult.migration_id);
@@ -457,6 +529,33 @@ function updatePhase3Status(phase3) {
         setProgressPhase(3, 'error');
         updateProgress(100, 'Migration Failed');
         log(`Phase 3 failed: ${phase3.error}`, 'error');
+    }
+}
+
+// Upload credentials file
+async function uploadCredentialsFile(migrationId) {
+    if (!uploadedCredentialsFile) return;
+    
+    const formData = new FormData();
+    formData.append('file', uploadedCredentialsFile);
+    
+    try {
+        const response = await fetch(`${API_BASE}/api/migration/${migrationId}/credentials`, {
+            method: 'POST',
+            body: formData,
+        });
+        
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({ detail: 'Unknown error' }));
+            throw new Error(error.detail || `HTTP ${response.status}`);
+        }
+        
+        const result = await response.json();
+        log(`Credentials file uploaded successfully: ${uploadedCredentialsFile.name}`, 'success');
+        return result;
+    } catch (error) {
+        log(`Failed to upload credentials file: ${error.message}`, 'error');
+        throw error;
     }
 }
 

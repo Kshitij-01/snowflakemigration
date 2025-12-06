@@ -531,6 +531,64 @@ select.input-field {
     background: rgba(255, 255, 255, 0.1);
 }
 
+/* ============================================
+   CONFIGURATION SECTION
+   ============================================ */
+
+.config-section {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    margin-bottom: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.file-upload-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.file-name-display {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-sm);
+    flex: 1;
+}
+
+.help-text {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-top: 8px;
+    line-height: 1.5;
+}
+
+.credentials-example {
+    margin-top: 16px;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.credentials-example-code {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-light);
+    background: rgba(0, 0, 0, 0.3);
+    padding: 16px;
+    border-radius: var(--radius-sm);
+    overflow-x: auto;
+    margin: 0;
+    line-height: 1.6;
+    white-space: pre;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 .btn-icon {
     font-weight: 700;
 }
